@@ -1,0 +1,11 @@
+extension:
+  name: aws-object-storage-showcase-2
+  version: "1.0.0"
+  api_level: "1.6.0"
+  requires_python: ">=3.11"
+  zip_safe: True
+owner:
+  name: AIB
+  organization: Stonebranch
+comments: |
+  Created using ue-task template
