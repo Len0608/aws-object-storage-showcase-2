@@ -121,7 +121,7 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
 - **Rationale**: For a demo/showcase extension, visual quality of STDOUT output directly affects how evaluators perceive the integration. The cost (one small pure-Python dependency) is minimal; the benefit is a noticeably more professional output.
 - **Trade-offs**: Adds one dependency (~40 KB). Negligible for a bundled extension. Plain text (Option A) avoids it but produces less readable output.
 - **Requirement Impact**: If Option B is chosen, `tabulate==0.10.0` is added to `requirements.txt`. No template changes.
-- **User's Answer**: Option B — use tabulate 0.10.0 for formatted STDOUT table output; confirm boto3 1.43.110 and full dependency chain.
+- **User's Answer**: **Option B** — use tabulate 0.10.0 for STDOUT table formatting. boto3 1.43.110 and its full dependency chain are confirmed.
 
 ---
 
@@ -148,7 +148,7 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
 - **Rationale**: Option A works on any server (AWS or non-AWS), requires no credential rotation, and is the universal baseline for AWS integrations. Options B and C add complexity without benefit for an MVP demo.
 - **Trade-offs**: Long-lived credentials (vs. STS temporary ones) are a security consideration in production environments. For the stated demo purpose, this trade-off is explicitly acceptable. IAM policies can restrict the key to S3 read/write only, limiting blast radius.
 - **Requirement Impact**: None — the existing "AWS Credentials" field accommodates this mapping directly.
-- **User's Answer**: Option A — Standard IAM User credentials: `user` = Access Key ID, `password` = Secret Access Key.
+- **User's Answer**: **Option A** — Standard IAM User credentials: Access Key ID mapped to `user`, Secret Access Key mapped to `password`. No Session Token field needed.
 
 ---
 
@@ -183,7 +183,7 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
   - `Status` (Text Field, Output Only) — shared across actions, e.g., `Success: Listed 42 objects`
   - `Objects Found` (Text Field, Output Only, visible only when action = List Objects) — e.g., `42`
   - `Uploaded Object` (Text Field, Output Only, visible only when action = Upload File) — e.g., `s3://my-bucket/reports/q4.csv`
-- **User's Answer**: Option B — Object Key, human-readable Size, Last Modified date on STDOUT. Two output-only fields: `Status` (shared) and action-specific (`Objects Found` count / `Uploaded Object` S3 URI).
+- **User's Answer**: **Option B** — display Object Key, human-readable Size, and Last Modified date in the STDOUT table. UAC output-only fields: one shared `Status` field (used by both actions) + one action-specific field (`Objects Found` count for List Objects; `Uploaded Object` S3 URI for Upload File).
 
 ---
 
@@ -204,7 +204,7 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
 - **Rationale**: S3's "put wins" semantics are well understood. Adding a pre-check doubles API calls and adds code complexity with no benefit for a demo integration. Users who need protection can manage it via IAM policies or S3 Versioning at the bucket level.
 - **Trade-offs**: Silent overwrites could be unexpected for users unfamiliar with S3 semantics. A clear note in the `Status` output field (e.g., `Success: Uploaded s3://bucket/key`) serves as implicit confirmation.
 - **Requirement Impact**: None — the existing Upload File fields are sufficient.
-- **User's Answer**: Option A — always overwrite; standard S3 behavior with no pre-existence check.
+- **User's Answer**: **Option A** — Always overwrite. Standard S3 behavior; no extra API call; appropriate for an MVP.
 
 ---
 
@@ -235,7 +235,7 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
 - **Rationale**: Essential safety net for any extension producing variable-length record output. Zero template cost (environment variable, not a field). Standard practice per UAC extension guidelines.
 - **Trade-offs**: Users who need to see more than 100 objects must set the environment variable explicitly. This is a minor operational step and far outweighs the risk of uncontrolled output size.
 - **Requirement Impact**: No new template fields. The `Objects Found` output-only field (from Q3) will always show the true total, even when STDOUT is truncated.
-- **User's Answer**: Yes — cap at 100 objects by default using `UE_MAX_OUTPUT_RECORDS` environment variable. True total count always shown in the `Objects Found` output field.
+- **User's Answer**: Yes — apply a default cap of 100 objects, configurable via `UE_MAX_OUTPUT_RECORDS` environment variable.
 
 ---
 
@@ -309,4 +309,4 @@ The requirements are clear on scope, SDK, and field names, but leave open three 
 - **Rationale**: A demo extension benefits from rich Extension Output because it demonstrates UAC's downstream automation capability to evaluators. With the 100-record cap in place, the JSON payload remains manageable. A simple error object is included on failure for clean error propagation.
 - **Trade-offs**: Larger JSON payload vs. richer automation capability. The record cap from Q5 keeps the list manageable. Option A (summary only) is smaller but less impressive as a demo.
 - **Requirement Impact**: No new template fields. Extension Output is generated at runtime by the extension code.
-- **User's Answer**: Option B for both actions — full object list (capped) with total_count/shown_count for List Objects; full upload details (bucket, key, S3 URI, size, region) for Upload File.
+- **User's Answer**: **Option B for both actions** — include full object list (with cap from Q5) for List Objects, and full upload details for Upload File.
